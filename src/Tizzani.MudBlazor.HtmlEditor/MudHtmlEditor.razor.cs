@@ -150,14 +150,34 @@ public sealed partial class MudHtmlEditor : IAsyncDisposable
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
+{
+    try
     {
         if (_quill is not null)
         {
             await _quill.DisposeAsync();
-            _quill = null;
         }
+    }
+    // Already disposed - ignore
+    catch (JSDisconnectedException) { }
+    catch (ObjectDisposedException) { }
+    finally
+    {
+        _quill = null;
+    }
 
-        _dotNetRef?.Dispose();
+    try
+    {
+        if (_dotNetRef is not null)
+        {
+            _dotNetRef.Dispose();
+        }
+    }
+    // Already disposed - ignore
+    catch (ObjectDisposedException) { }
+    finally
+    {
         _dotNetRef = null;
     }
+}
 }
